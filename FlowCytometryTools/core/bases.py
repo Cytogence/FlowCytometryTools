@@ -1,5 +1,5 @@
 """Base objects for measurement and plate objects."""
-from collections.abc import MutableMapping
+from collections.abc import MutableMapping, Mapping
 
 import decorator
 import inspect
@@ -37,7 +37,7 @@ def _assign_IDS_to_datafiles(datafiles, parser, measurement_class=None, **kwargs
     -------
     Dict of ID:datafile
     """
-    if isinstance(parser, abc.Mapping):
+    if isinstance(parser, Mapping):
         fparse = lambda x: parser[x]
     elif hasattr(parser, "__call__"):
         fparse = lambda x: parser(x, **kwargs)
@@ -370,7 +370,7 @@ class Measurement(BaseObject):
 Well = Measurement
 
 
-class MeasurementCollection(abc.MutableMapping, BaseObject):
+class MeasurementCollection(MutableMapping, BaseObject):
     """
     A collection of measurements
     """
@@ -393,7 +393,7 @@ class MeasurementCollection(abc.MutableMapping, BaseObject):
         """
         self.ID = ID
         self.data = {}
-        if isinstance(measurements, abc.Mapping):
+        if isinstance(measurements, Mapping):
             self.update(measurements)
         else:
             for m in measurements:
@@ -487,7 +487,6 @@ class MeasurementCollection(abc.MutableMapping, BaseObject):
                 type(self),
                 type(self._measurement_class),
             ) + "Encountered type %s." % type(value)
-            raise TypeError(msg)
         self.data[key] = value
 
     def __delitem__(self, key):
@@ -667,7 +666,7 @@ class MeasurementCollection(abc.MutableMapping, BaseObject):
         """
         fil = criteria
         new = self.copy()
-        if isinstance(applyto, abc.Mapping):
+        if isinstance(applyto, Mapping):
             remove = (k for k, v in self.items() if not fil(applyto[k]))
         elif applyto == "measurement":
             remove = (k for k, v in self.items() if not fil(v))
@@ -903,7 +902,7 @@ class OrderedCollection(MeasurementCollection):
         Note that this method doesn't check that enough labels were set for all the assigned positions.
         """
         if axis.lower() in ("rows", "row", "r", 0):
-            assigned_pos = set(v[0] for v in self._positions.itervalues())
+            assigned_pos = set(v[0] for v in self._positions.values())
             not_assigned = set(labels) - assigned_pos
             if len(not_assigned) > 0:
                 msg = "New labels must contain all assigned positions"
@@ -951,7 +950,7 @@ class OrderedCollection(MeasurementCollection):
 
         if hasattr(position_mapper, "__call__"):
             mapper = position_mapper
-        elif isinstance(position_mapper, abc.Mapping):
+        elif isinstance(position_mapper, Mapping):
             mapper = lambda x: position_mapper[x]
         elif position_mapper == "name":
             mapper = lambda x: (x[0], int(x[1:]))
