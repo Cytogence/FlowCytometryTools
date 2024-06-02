@@ -1,5 +1,5 @@
 """Base objects for measurement and plate objects."""
-from collections import abc
+from collections.abc import MutableMapping
 
 import decorator
 import inspect
